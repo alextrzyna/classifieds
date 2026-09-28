@@ -84,4 +84,9 @@ Each step names the field in the listing frontmatter it fills.
 - The account must have a country set in its Pinkbike profile before it
   can post. Otherwise selectcategory redirects to /system/message/ with
   "You have not set a valid country in your Profile". Setting it is an
-  account settings change, so ask the owner before touching it.
+  account settings change, so ask the owner before touching it. The
+  profile edit page is /u/<username>/editprofile/; Country, State, and
+  City are autocomplete text boxes with a picker, then Save.
+- First-time posters must pass a one-time SMS phone verification
+  (/buysell/smsverify/). The owner does this themselves: never enter
+  their phone number, and the code goes to their phone.
