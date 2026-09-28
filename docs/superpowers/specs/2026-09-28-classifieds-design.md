@@ -180,10 +180,10 @@ Commands:
   dropdown fields within `field_options`, price is at or above floor, and the
   web photo count is within `photo_max` and each web photo meets
   `photo_min_px`. Exit 1 with a list of problems.
-- `classifieds status <item-dir> <new-status> [--price N] [--note TEXT]`:
+- `classifieds status <item-dir> <new-status> [--price N] [--floor N] [--note TEXT]`:
   enforces transitions (draft->priced, priced->listed, listed->sold,
   listed->withdrawn, listed->priced for re-pricing, withdrawn->priced),
-  updates `status` and `updated`, sets `ask` when `--price` is given, and
+  updates `status` and `updated`, sets `ask` and `floor` when given, and
   appends a log entry.
 
 Design rules: pure functions in the modules, I/O only at the edges in
@@ -207,7 +207,7 @@ failure. Each skill states which status it expects and which it leaves.
   Pinkbike BuySell, the browser. Records at least five comps where they
   exist, notes sold versus active, adjusts for size, build tier, condition,
   region, and time of year, writes the dated research file, and runs
-  `classifieds status priced --price N` after the owner agrees on the ask
+  `classifieds status priced --price N --floor N` after the owner agrees on the ask
   and floor.
 - `write-listing`: drafts `listings/<marketplace>.md` from item.md, the
   latest research file, and the marketplace profile body. Never copies the
