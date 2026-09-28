@@ -1,6 +1,6 @@
 ---
 name: Pinkbike BuySell
-url: https://www.pinkbike.com/buysell/sell/
+url: https://www.pinkbike.com/buysell/selectcategory/
 title_max: 100
 description_max: 5000
 photo_max: 12
@@ -78,4 +78,10 @@ Each step names the field in the listing frontmatter it fills.
 
 ## Gotchas
 
-- None recorded yet. Add anything learned during a real post here.
+- Confirmed 2026-09-28: the post flow starts at
+  https://www.pinkbike.com/buysell/selectcategory/ (the "Post New Ad"
+  link on /buysell/). /buysell/sell/ is a 404.
+- The account must have a country set in its Pinkbike profile before it
+  can post. Otherwise selectcategory redirects to /system/message/ with
+  "You have not set a valid country in your Profile". Setting it is an
+  account settings change, so ask the owner before touching it.
