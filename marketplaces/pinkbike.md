@@ -97,6 +97,13 @@ Each step names the field in the listing frontmatter it fills.
   account settings change, so ask the owner before touching it. The
   profile edit page is /u/<username>/editprofile/; Country, State, and
   City are autocomplete text boxes with a picker, then Save.
+- Do not put the year in the title. The form rejects it ("The year will
+  be added automatically to title") and Pinkbike prepends the Year
+  dropdown value when displaying the ad.
+- The Description survives a validation-error reload; dropdowns and
+  title do too. Only fix the flagged field and resubmit.
+- "Save & Upload Photos" saves a private draft and opens the uploader.
+  That is the only way to add photos from disk.
 - First-time posters must pass a one-time SMS phone verification
   (/buysell/smsverify/). The owner does this themselves: never enter
   their phone number, and the code goes to their phone.
