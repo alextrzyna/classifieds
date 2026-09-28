@@ -20,8 +20,16 @@ Read the target marketplace profile in `marketplaces/<name>.md` (ask which
 one if not given; default pinkbike for bikes). Note its `photo_max` and
 what its "What buyers care about" section says to show.
 
-View every raw photo with the Read tool. For each, note what it shows and
-whether it is sharp and well lit. Then propose an order:
+The Read tool cannot display HEIC, and phone photos are large. Make small
+JPEG previews in the scratchpad first, then view those with the Read tool:
+
+```bash
+mkdir -p "$SCRATCH/preview" && sips -s format jpeg -Z 800 items/<slug>/photos/raw/* --out "$SCRATCH/preview/"
+```
+
+`sips` is built into macOS. Previews are throwaway; never write them
+into the item folder. View every preview. For each, note what it shows
+and whether it is sharp and well lit. Then propose an order:
 
 1. Hero: the whole item, side-on, best light, clean background. For a bike
    this is the drive side.

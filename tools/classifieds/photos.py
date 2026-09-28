@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 try:
     import pillow_heif
@@ -71,16 +71,20 @@ def load_manifest(item_dir: Path) -> Manifest:
     rows = parse_manifest_table(doc.body)
     seen: set[str] = set()
     for row in rows:
+        if not row.raw:
+            raise PhotoError(f"manifest row for '{row.web}' has an empty raw file name")
         if not WEB_NAME_RE.match(row.web):
             raise PhotoError(f"web name '{row.web}' must look like 01-descriptor.jpg")
         if row.web in seen:
             raise PhotoError(f"duplicate web name '{row.web}' in manifest")
         seen.add(row.web)
-    return Manifest(
-        max_long_edge=int(doc.meta.get("max_long_edge", DEFAULT_MAX_LONG_EDGE)),
-        quality=int(doc.meta.get("quality", DEFAULT_QUALITY)),
-        rows=rows,
-    )
+    settings = {}
+    for key, default in (("max_long_edge", DEFAULT_MAX_LONG_EDGE), ("quality", DEFAULT_QUALITY)):
+        value = doc.meta.get(key, default)
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise PhotoError(f"{path}: {key} must be an int, got {value!r}")
+        settings[key] = value
+    return Manifest(max_long_edge=settings["max_long_edge"], quality=settings["quality"], rows=rows)
 
 
 def process_photos(item_dir: Path, manifest: Manifest, force: bool = False) -> list[tuple[str, str]]:
@@ -92,14 +96,26 @@ def process_photos(item_dir: Path, manifest: Manifest, force: bool = False) -> l
         raise PhotoError("missing raw photos: " + ", ".join(missing))
 
     web_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = item_dir / "photos" / "manifest.md"
+    manifest_mtime = manifest_path.stat().st_mtime if manifest_path.exists() else 0.0
+    wanted = {row.web for row in manifest.rows}
     results: list[tuple[str, str]] = []
+    for stale in sorted(web_dir.glob("*.jpg")):
+        if stale.name not in wanted:
+            stale.unlink()
+            results.append((stale.name, "removed"))
     for row in manifest.rows:
         src = raw_dir / row.raw
         dst = web_dir / row.web
-        if not force and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+        newest_input = max(src.stat().st_mtime, manifest_mtime)
+        if not force and dst.exists() and dst.stat().st_mtime >= newest_input:
             results.append((row.web, "skipped"))
             continue
-        with Image.open(src) as img:
+        try:
+            img = Image.open(src)
+        except UnidentifiedImageError as exc:
+            raise PhotoError(f"{src.name} is not a readable image") from exc
+        with img:
             upright = ImageOps.exif_transpose(img)
             rgb = upright.convert("RGB")
             rgb.thumbnail((manifest.max_long_edge, manifest.max_long_edge), Image.LANCZOS)

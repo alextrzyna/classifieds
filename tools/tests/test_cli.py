@@ -98,3 +98,48 @@ def test_status_rejects_unknown_value(repo: Path, capsys):
         assert exc.code == 2
     else:
         raise AssertionError("expected argparse to reject unknown status")
+
+
+def test_photos_malformed_manifest_reports_cleanly(repo: Path, capsys):
+    d = make_item(repo)
+    (d / "photos").mkdir(exist_ok=True)
+    (d / "photos" / "manifest.md").write_text("---\nmax_long_edge: 1000\nno close\n")
+    assert main(["photos", str(d)]) == 1
+    assert "unterminated" in capsys.readouterr().out
+
+
+def test_photos_bad_setting_reports_cleanly(repo: Path, capsys):
+    d = make_item(repo)
+    _raw(d)
+    (d / "photos" / "manifest.md").write_text("---\nquality: high\n---\n" + MANIFEST)
+    assert main(["photos", str(d)]) == 1
+    assert "quality" in capsys.readouterr().out
+
+
+def test_check_listing_validates_item_first(repo: Path, capsys):
+    d = make_item(repo, status="priced", ask=3000, floor="two five")
+    add_research(d)
+    add_listing(d)
+    _raw(d)
+    main(["photos", str(d)])
+    assert main(["check-listing", str(d), "testmarket"]) == 1
+    assert "floor" in capsys.readouterr().out
+
+
+def test_check_listing_corrupt_photo_reports_cleanly(repo: Path, capsys):
+    d = make_item(repo, status="priced", ask=3000, floor=2500)
+    add_research(d)
+    add_listing(d)
+    (d / "photos" / "web").mkdir(parents=True)
+    (d / "photos" / "web" / "01-hero.jpg").write_bytes(b"not an image")
+    assert main(["check-listing", str(d), "testmarket"]) == 1
+    assert "01-hero.jpg" in capsys.readouterr().out
+
+
+def test_check_listing_malformed_listing_reports_cleanly(repo: Path, capsys):
+    d = make_item(repo, status="priced", ask=3000, floor=2500)
+    add_research(d)
+    (d / "listings").mkdir()
+    (d / "listings" / "testmarket.md").write_text("---\ntitle: x\nno close\n")
+    assert main(["check-listing", str(d), "testmarket"]) == 1
+    assert "unterminated" in capsys.readouterr().out

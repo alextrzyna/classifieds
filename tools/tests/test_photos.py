@@ -128,3 +128,35 @@ def test_process_reads_heic(repo: Path):
     process_photos(d, load_manifest(d))
     with Image.open(d / "photos" / "web" / "01-hero.jpg") as out:
         assert out.size == (1000, 750)
+
+
+def test_process_rebuilds_when_manifest_changes(repo: Path):
+    d = _with_manifest(repo, SMALL + "| raw | web | caption |\n|---|---|---|\n| a.jpg | 01-hero.jpg | A |\n| b.jpg | 02-side.jpg | B |\n")
+    raw = d / "photos" / "raw"
+    raw.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", (400, 300), "red").save(raw / "a.jpg", "JPEG")
+    Image.new("RGB", (400, 300), "blue").save(raw / "b.jpg", "JPEG")
+    process_photos(d, load_manifest(d))
+    (d / "photos" / "manifest.md").write_text(SMALL + "| raw | web | caption |\n|---|---|---|\n| b.jpg | 01-hero.jpg | B |\n| a.jpg | 02-side.jpg | A |\n")
+    result = process_photos(d, load_manifest(d))
+    assert result == [("01-hero.jpg", "written"), ("02-side.jpg", "written")]
+    with Image.open(d / "photos" / "web" / "01-hero.jpg") as out:
+        assert out.getpixel((0, 0))[2] > 200  # blue now
+
+
+def test_process_removes_web_files_not_in_manifest(repo: Path):
+    d = _with_manifest(repo, SMALL + "| raw | web | caption |\n|---|---|---|\n| a.jpg | 01-hero.jpg | A |\n| b.jpg | 02-side.jpg | B |\n")
+    _raw(d, "a.jpg", size=(400, 300))
+    _raw(d, "b.jpg", size=(400, 300))
+    process_photos(d, load_manifest(d))
+    (d / "photos" / "manifest.md").write_text(SMALL + "| raw | web | caption |\n|---|---|---|\n| a.jpg | 01-hero.jpg | A |\n")
+    result = process_photos(d, load_manifest(d))
+    assert ("02-side.jpg", "removed") in result
+    assert not (d / "photos" / "web" / "02-side.jpg").exists()
+    assert (d / "photos" / "web" / "01-hero.jpg").exists()
+
+
+def test_load_manifest_rejects_empty_raw(repo: Path):
+    d = _with_manifest(repo, "| raw | web | caption |\n|---|---|---|\n|  | 01-a.jpg | A |\n")
+    with pytest.raises(PhotoError, match="raw"):
+        load_manifest(d)

@@ -79,10 +79,20 @@ Ask <n>. Floor <n>. What would move it: ...
 
 After the owner agrees on ask and floor:
 
-- If status is `draft`, `listed`, or `withdrawn`, run
+- If status is `draft` or `withdrawn`, run
   `uv run classifieds status items/<slug> priced --price <ask> --floor <floor>`
   and show the output.
 - If status is already `priced` (a refresh), the status command has no
   transition to apply. Edit `ask`, `floor`, and `updated` in item.md by
   hand, then append `<today>  priced  ask <ask> floor <floor> (refresh)`
   to log.md, and run `uv run classifieds validate items/<slug>`.
+- If status is `listed` (re-pricing a live listing), do not post again.
+  The listing already exists on the marketplace; the owner edits its
+  price there. Steps:
+  1. `uv run classifieds status items/<slug> priced --price <ask> --floor <floor>`
+  2. For every file in `listings/`, set `price` to the new ask and run
+     `uv run classifieds check-listing items/<slug> <marketplace>` until
+     it prints `ok`.
+  3. Tell the owner the new price and ask them to edit each live listing.
+     When they confirm, run
+     `uv run classifieds status items/<slug> listed --note "repriced to <ask>"`.

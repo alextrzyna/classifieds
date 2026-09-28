@@ -4,5 +4,5 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 .superpowers/
-items/*/photos/raw/*.HEIC
-items/*/photos/raw/*.heic
+items/*/photos/raw/*
+!items/*/photos/raw/.gitkeep

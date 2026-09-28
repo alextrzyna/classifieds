@@ -5,6 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from .frontmatter import FrontmatterError
 from .items import STATUSES, ItemError, load_item, validate_item
 from .listings import ListingError, check_listing, load_listing, web_photos
 from .photos import PhotoError, load_manifest, process_photos
@@ -35,7 +36,7 @@ def cmd_photos(args: argparse.Namespace) -> int:
     try:
         manifest = load_manifest(item_dir)
         results = process_photos(item_dir, manifest, force=args.force)
-    except PhotoError as exc:
+    except (PhotoError, FrontmatterError) as exc:
         return _report("photos", [str(exc)])
     for name, outcome in results:
         print(f"{name} {outcome}")
@@ -46,10 +47,13 @@ def cmd_check_listing(args: argparse.Namespace) -> int:
     item_dir = Path(args.item)
     try:
         item = load_item(item_dir)
+        item_problems = validate_item(item)
+        if item_problems:
+            return _report(f"check-listing {item.slug}: item.md is invalid", item_problems)
         root = find_repo_root(item_dir)
         profile = load_profile(profile_path(root, args.marketplace))
         listing = load_listing(item_dir, args.marketplace)
-    except (ItemError, ProfileError, ListingError) as exc:
+    except (ItemError, ProfileError, ListingError, FrontmatterError) as exc:
         return _report(f"check-listing {args.marketplace}", [str(exc)])
     problems = check_listing(item, listing, profile, web_photos(item_dir))
     return _report(f"check-listing {item.slug} on {profile.name}", problems)
@@ -60,7 +64,7 @@ def cmd_status(args: argparse.Namespace) -> int:
         item = apply_status(
             Path(args.item), args.new_status, price=args.price, floor=args.floor, note=args.note,
         )
-    except (ItemError, StatusError) as exc:
+    except (ItemError, StatusError, FrontmatterError) as exc:
         return _report("status", [str(exc)])
     print(f"ok: {item.slug} is now {item.status}")
     return 0

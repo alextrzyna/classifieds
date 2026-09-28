@@ -21,7 +21,7 @@ status:
 | draft | yes | prep-photos, then price-research |
 | draft | no | price-research |
 | priced | any | write-listing if listings/<marketplace>.md is missing, else post-listing |
-| listed | any | ask: re-price, add another marketplace, mark sold, or withdraw |
+| listed | any | ask: re-price (price-research, which updates the live listing rather than posting again), add another marketplace (write-listing then post-listing for it), mark sold, or withdraw |
 | sold or withdrawn | any | say so and stop unless the owner wants to relist |
 
 Photos are needed before write-listing, so if `photos/web/` is empty at

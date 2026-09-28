@@ -9,8 +9,9 @@ online marketplaces with Claude Code.
    sell. The `sell-item` skill walks the steps:
    new-item, prep-photos, price-research, write-listing, post-listing.
 2. Put photos from your phone in `items/<slug>/photos/raw/`. HEIC is
-   fine. Raw HEIC files are gitignored; the generated `photos/web/`
-   JPEGs are what get committed and uploaded.
+   fine. Raw photos are never committed (they carry GPS and camera
+   metadata); the generated `photos/web/` JPEGs, with metadata stripped,
+   are what get committed and uploaded.
 3. Claude fills the marketplace's sell form in your logged-in Chrome.
    You review and click Post.
 

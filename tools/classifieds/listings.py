@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from .frontmatter import load
 from .items import Item
@@ -64,7 +64,7 @@ def check_listing(item: Item, listing: Listing, profile: Profile, photos: list[P
             problems.append(f"required field missing: {key}")
 
     for key, allowed in profile.field_options.items():
-        if key in meta and meta[key] not in allowed:
+        if key in meta and str(meta[key]) not in [str(a) for a in allowed]:
             problems.append(f"field {key} is {meta[key]!r}; allowed: {', '.join(map(str, allowed))}")
 
     price = meta.get("price")
@@ -73,20 +73,28 @@ def check_listing(item: Item, listing: Listing, profile: Profile, photos: list[P
             problems.append(f"price must be an int, got {type(price).__name__}")
         elif item.floor is not None and price < item.floor:
             problems.append(f"price {price} is below floor {item.floor}")
+        elif item.ask is not None and price != item.ask:
+            problems.append(f"price {price} differs from ask {item.ask} in item.md")
 
     if item.floor is not None:
-        for pattern in floor_patterns(item.floor):
-            if pattern in body:
-                problems.append(f"floor price appears in description as '{pattern}'")
-                break
+        texts = {"description": body}
+        texts.update({k: v for k, v in meta.items() if isinstance(v, str) and k != "price"})
+        for where, text in texts.items():
+            leak = next((pat for pat in floor_patterns(item.floor) if pat in text), None)
+            if leak:
+                problems.append(f"floor price appears in {where} as '{leak}'")
 
     if not photos:
         problems.append("no web photos; run `classifieds photos` first")
     elif len(photos) > profile.photo_max:
         problems.append(f"{len(photos)} photos; {profile.name} allows at most {profile.photo_max}")
     for photo in photos:
-        with Image.open(photo) as img:
-            shortest = min(img.size)
+        try:
+            with Image.open(photo) as img:
+                shortest = min(img.size)
+        except UnidentifiedImageError:
+            problems.append(f"{photo.name} is not a readable image")
+            continue
         if shortest < profile.photo_min_px:
             problems.append(f"{photo.name} shortest side is {shortest}px; {profile.name} needs {profile.photo_min_px}px")
 

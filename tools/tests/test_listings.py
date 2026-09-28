@@ -113,3 +113,20 @@ def test_web_photos_sorted_jpg_only(repo: Path):
     _photo(d, "01-a.jpg")
     (d / "photos" / "web" / "notes.txt").write_text("x")
     assert [p.name for p in web_photos(d)] == ["01-a.jpg", "02-b.jpg"]
+
+
+def test_floor_leak_in_title(repo: Path):
+    d, item, listing, profile = _setup(repo, title="Test Bike, will take 2500")
+    assert any("floor" in p and "title" in p for p in check_listing(item, listing, profile, web_photos(d)))
+
+
+def test_price_must_match_ask(repo: Path):
+    d, item, listing, profile = _setup(repo, price=2900)
+    assert any("ask" in p and "2900" in p for p in check_listing(item, listing, profile, web_photos(d)))
+
+
+def test_option_compares_as_string(repo: Path):
+    d, item, listing, profile = _setup(repo)
+    profile.field_options["wheel_size"] = ["29", "27.5"]
+    listing.meta["wheel_size"] = 29
+    assert check_listing(item, listing, profile, web_photos(d)) == []

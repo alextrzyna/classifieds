@@ -6,8 +6,9 @@ description: Use when a checked listing exists and the owner wants it entered in
 # Post listing
 
 Fills the marketplace's sell form from `listings/<marketplace>.md` and
-`photos/web/`. Expects status `priced` with a listing that passes
-`check-listing`. Ends at `listed` after the owner confirms they posted.
+`photos/web/`. Expects status `priced` (first marketplace) or `listed`
+(adding another marketplace) with a listing that passes `check-listing`.
+Ends at `listed` after the owner confirms they posted.
 
 You never click Post, Publish, List it, or any equivalent. The owner does.
 
@@ -52,10 +53,13 @@ Paste the description body verbatim.
 Take a screenshot of the filled form. Tell the owner: the form is filled,
 here is what to check, and they should click Post when satisfied. Wait.
 
-When the owner says it is posted, ask for the listing URL, then run:
+When the owner says it is posted, ask for the listing URL. Then add this
+marketplace to `marketplaces` in item.md if it is not there yet, and:
 
-`uv run classifieds status items/<slug> listed --note <url>`
-
-If `marketplaces` in item.md does not include this marketplace, add it
-before running the status command, or the validation gate will reject
-the transition. Show the command output.
+- If status is `priced`, run
+  `uv run classifieds status items/<slug> listed --note "<marketplace> <url>"`
+  and show the output.
+- If the item is already `listed` (this is an additional marketplace),
+  the status command has no transition to apply. Append
+  `<today>  listed  <marketplace> <url>` to log.md by hand, set `updated`
+  in item.md to today, and run `uv run classifieds validate items/<slug>`.
