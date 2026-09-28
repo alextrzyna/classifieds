@@ -5,7 +5,7 @@ import pytest
 from classifieds.frontmatter import load
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILLS = ["new-item", "prep-photos", "price-research", "write-listing", "post-listing", "sell-item"]
+SKILLS = ["new-item", "import-photos", "prep-photos", "price-research", "write-listing", "post-listing", "sell-item"]
 
 
 @pytest.mark.parametrize("name", SKILLS)
