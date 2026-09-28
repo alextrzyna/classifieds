@@ -44,8 +44,9 @@ that get replies show the drive side clearly, state the frame size early,
 and list the build honestly, including wear.
 
 Frontmatter fields and options were read from the live form on
-2026-09-28 (Enduro Bikes category). `photo_max`, `photo_min_px`, and
-`description_max` are still `unverified`. Travel dropdowns only list the
+2026-09-28 (Enduro Bikes category). Nine 2048px photos (3.2 MB total)
+uploaded in one batch without complaint; `photo_max`, `photo_min_px`,
+and `description_max` are still `unverified` as hard limits. Travel dropdowns only list the
 values above; pick the nearest (Ripmo V2's 147 mm rear -> 145 mm).
 
 ## What buyers care about
@@ -83,8 +84,13 @@ Each step names the field in the listing frontmatter it fills.
 6. Upload photos from `photos/web/` in manifest order. The first is the
    hero image. Where in the flow the photo uploader appears is
    `unverified`; it may be after "Save a private draft".
-7. Stop. Take a screenshot, tell the owner the form is filled, and wait
-   for them to review and click "Save and publish publicly".
+7. After the upload finishes Pinkbike returns to /buysell/edit/?ad=<id>
+   with everything intact and the first photo marked "main photo".
+   Stop. Take a screenshot, tell the owner the form is filled, and wait
+   for them to review and click "Save & Publish".
+8. The live ad is at https://www.pinkbike.com/buysell/<id>/ and shows
+   "<year> <title>". Sellers get "Mark SOLD", "Edit", "Repost" buttons on
+   their own ad; Repost bumps it to the top of search.
 
 ## Gotchas
 
