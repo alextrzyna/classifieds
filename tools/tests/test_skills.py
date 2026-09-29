@@ -36,12 +36,21 @@ def test_prep_photos_previews_heic():
     assert "sips" in body
 
 
-def test_raw_photos_are_gitignored():
+def test_outer_repo_ignores_items_dir():
     import subprocess
     if not (ROOT / ".git").exists():
         pytest.skip("not a git checkout")
+    rc = subprocess.run(["git", "check-ignore", "-q", "items/anything/item.md"], cwd=ROOT).returncode
+    assert rc == 0, "items/ must be ignored by the toolkit repo; item data lives in its own repo"
+
+
+def test_items_repo_ignores_raw_photos():
+    import subprocess
+    items = ROOT / "items"
+    if not (items / ".git").exists():
+        pytest.skip("no nested items repo in this checkout")
     for name in ("IMG_1.jpg", "IMG_2.HEIC", "photo.png"):
-        rc = subprocess.run(["git", "check-ignore", "-q", f"items/x/photos/raw/{name}"], cwd=ROOT).returncode
-        assert rc == 0, f"{name} should be ignored"
-    rc = subprocess.run(["git", "check-ignore", "-q", "items/x/photos/raw/.gitkeep"], cwd=ROOT).returncode
+        rc = subprocess.run(["git", "check-ignore", "-q", f"x/photos/raw/{name}"], cwd=items).returncode
+        assert rc == 0, f"{name} should be ignored by the items repo"
+    rc = subprocess.run(["git", "check-ignore", "-q", "x/photos/raw/.gitkeep"], cwd=items).returncode
     assert rc == 1, ".gitkeep should not be ignored"

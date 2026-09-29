@@ -8,7 +8,8 @@ online marketplaces with Claude Code.
 1. Start a Claude Code session in this repo and say what you want to
    sell. The `sell-item` skill walks the steps:
    new-item, prep-photos, price-research, write-listing, post-listing.
-2. Put photos from your phone in `items/<slug>/photos/raw/`. HEIC is
+2. Put photos from your phone or camera in `items/<slug>/photos/raw/`
+   (the `import-photos` skill pulls them off a mounted card). HEIC is
    fine. Raw photos are never committed (they carry GPS and camera
    metadata); the generated `photos/web/` JPEGs, with metadata stripped,
    are what get committed and uploaded.
@@ -18,7 +19,15 @@ online marketplaces with Claude Code.
 ## Layout
 
 - `items/<slug>/` one folder per item: `item.md`, `photos/`, `research/`,
-  `listings/`, `log.md`.
+  `listings/`, `log.md`. **`items/` is a separate, private git repo** and
+  is ignored by this one, so this repo can be public while your item
+  data, floor prices, and photos stay local. On a fresh clone create it
+  with:
+
+  ```
+  mkdir -p items && cd items && git init
+  printf '*/photos/raw/*\n!*/photos/raw/.gitkeep\n' > .gitignore
+  ```
 - `marketplaces/` one profile per marketplace with form limits and the
   posting flow.
 - `.claude/skills/` the skills.

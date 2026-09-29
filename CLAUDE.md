@@ -4,6 +4,11 @@ This repo sells items on online marketplaces. Read `README.md` first.
 
 ## Rules
 
+- `items/` is a nested private git repo, ignored by this one. Never
+  `git add` it here, never remove it from `.gitignore`, and commit item
+  changes with `git -C items ...`. Nothing personal (usernames, emails,
+  prices, locations beyond example strings) belongs in skills, profiles,
+  tools, or docs.
 - Run `uv run classifieds validate items/<slug>` before and after changing
   any item. Skills gate on it.
 - Never put the floor or the Private notes section into a listing.
