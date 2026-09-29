@@ -54,3 +54,9 @@ def test_items_repo_ignores_raw_photos():
         assert rc == 0, f"{name} should be ignored by the items repo"
     rc = subprocess.run(["git", "check-ignore", "-q", "x/photos/raw/.gitkeep"], cwd=items).returncode
     assert rc == 1, ".gitkeep should not be ignored"
+
+
+@pytest.mark.parametrize("name", ["new-item", "sell-item"])
+def test_entry_skills_bootstrap_items_dir(name: str):
+    body = load(ROOT / ".claude" / "skills" / name / "SKILL.md").body
+    assert "classifieds init-items" in body

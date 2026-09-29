@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .frontmatter import FrontmatterError
 from .items import STATUSES, ItemError, load_item, validate_item
+from .items_repo import init_items
 from .listings import ListingError, check_listing, load_listing, web_photos
 from .photos import PhotoError, load_manifest, process_photos
 from .profiles import ProfileError, find_repo_root, load_profile, profile_path
@@ -70,6 +71,16 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_init_items(args: argparse.Namespace) -> int:
+    try:
+        actions = init_items(Path(args.root), use_git=not args.no_git)
+    except (ValueError, OSError) as exc:
+        return _report("init-items", [str(exc)])
+    for a in actions:
+        print(a)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="classifieds",
@@ -90,6 +101,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("item")
     p.add_argument("marketplace", help="name of a file in marketplaces/ without .md")
     p.set_defaults(func=cmd_check_listing)
+
+    p = sub.add_parser("init-items", help="create the private items/ directory (its own git repo by default)")
+    p.add_argument("root", nargs="?", default=".", help="toolkit repo root (default: current directory)")
+    p.add_argument("--no-git", action="store_true", help="plain directory, no git repo")
+    p.set_defaults(func=cmd_init_items)
 
     p = sub.add_parser("status", help="move an item to a new status and log it")
     p.add_argument("item")

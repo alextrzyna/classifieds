@@ -8,6 +8,12 @@ description: Use when the owner wants to sell something new and no items/<slug>/
 Creates `items/<slug>/` with `item.md`, `log.md`, an empty `photos/raw/`,
 and a manifest with no rows. Ends at status `draft`.
 
+## Gate
+
+If `items/` does not exist, run `uv run classifieds init-items` first. It
+creates the private items directory as its own git repo, ignored by the
+toolkit repo. Never create `items/` by hand with mkdir.
+
 ## Slug
 
 `<year>-<brand>-<model>` lowercased, spaces and punctuation replaced with

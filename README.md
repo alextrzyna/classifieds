@@ -3,6 +3,34 @@
 Skills, a small toolkit, and per-item folders for selling things on
 online marketplaces with Claude Code.
 
+## Setup
+
+1. Clone this repo and install the toolkit:
+
+   ```
+   git clone https://github.com/alextrzyna/classifieds.git
+   cd classifieds
+   uv sync
+   ```
+
+2. Create the private `items/` directory. It holds everything about the
+   things you sell (item sheets, photos, floor prices, research, logs)
+   and is ignored by this repo, so nothing personal can end up on
+   GitHub. By default it becomes its own git repo so you can version
+   your item data locally:
+
+   ```
+   uv run classifieds init-items
+   ```
+
+   Add `--no-git` if you'd rather have a plain folder. Either way, raw
+   photos are ignored (they carry GPS and camera metadata); only the
+   generated `photos/web/` JPEGs are versioned.
+
+3. Install the [Claude in Chrome](https://claude.ai/chrome) extension
+   and log into the marketplace you'll sell on. Claude fills sell forms
+   in your own logged-in browser and never clicks Post.
+
 ## Selling something
 
 1. Start a Claude Code session in this repo and say what you want to
@@ -19,15 +47,9 @@ online marketplaces with Claude Code.
 ## Layout
 
 - `items/<slug>/` one folder per item: `item.md`, `photos/`, `research/`,
-  `listings/`, `log.md`. **`items/` is a separate, private git repo** and
-  is ignored by this one, so this repo can be public while your item
-  data, floor prices, and photos stay local. On a fresh clone create it
-  with:
-
-  ```
-  mkdir -p items && cd items && git init
-  printf '*/photos/raw/*\n!*/photos/raw/.gitkeep\n' > .gitignore
-  ```
+  `listings/`, `log.md`. Private, ignored by this repo, created by
+  `classifieds init-items` (see Setup). Commit changes there with
+  `git -C items ...`.
 - `marketplaces/` one profile per marketplace with form limits and the
   posting flow.
 - `.claude/skills/` the skills.
@@ -38,6 +60,7 @@ online marketplaces with Claude Code.
 ```
 uv sync
 uv run pytest
+uv run classifieds init-items [--no-git]
 uv run classifieds validate items/<slug>
 uv run classifieds photos items/<slug> [--force]
 uv run classifieds check-listing items/<slug> <marketplace>

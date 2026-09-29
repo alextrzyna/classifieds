@@ -11,7 +11,9 @@ bike is pinkbike.
 
 ## Decide where to start
 
-If `items/<slug>/` does not exist: run the new-item skill first.
+If `items/` does not exist at all, run `uv run classifieds init-items`
+first (it creates the private items repo). Then, if `items/<slug>/` does
+not exist: run the new-item skill first.
 
 Otherwise run `uv run classifieds validate items/<slug>` and read the
 status:
