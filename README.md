@@ -52,3 +52,7 @@ withdrawn item can go back to priced for re-pricing.
 The floor price is private. It lives in `item.md`, the research file, and
 `log.md`. `check-listing` fails if it appears in listing text. The
 "Private notes" section of `item.md` is never copied into a listing.
+
+## License
+
+MIT. See `LICENSE`.

@@ -2,6 +2,7 @@
 name = "classifieds"
 version = "0.1.0"
 description = "Toolkit for selling items on online marketplaces"
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0",
